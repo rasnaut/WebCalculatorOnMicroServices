@@ -19,9 +19,7 @@ services:
     restart: unless-stopped
     
   client-db:
-    build:
-      context: ./services/client_db_python/
-      dockerfile: Dockerfile
+    image: rasnaut/webcalculator-dbclient-python:latest
     environment:
       - DB_HOST=postgres_db
       - DB_PORT=5432
@@ -36,9 +34,7 @@ services:
     # restart: unless-stopped
 
   backend-app:
-    build:
-      context: ./services/backend_java/
-      dockerfile: Dockerfile
+    image: rasnaut/webcalculator-backend-java:latest
     expose:
       - "8080"
     depends_on:
@@ -55,9 +51,7 @@ services:
       - CLIENT_DB_PORT=5001
 
   frontend-app:
-    build:
-      context: ./services/frontend_js/
-      dockerfile: Dockerfile
+    image: rasnaut/webcalculator-frontend-js:latest
     ports:
       - "5002:5002"
     depends_on:
