@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    expose:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "calculator_user", "-d", "calculator"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+    restart: unless-stopped
+    
+  client-db:
+    build:
+      context: ./services/client_db_python/
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=postgres_db
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASS=${POSTGRES_PASSWORD}
+    expose:
+      - "5001"
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    # restart: unless-stopped
+
+  backend-app:
+    build:
+      context: ./services/backend_java/
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      client-db:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - ALLOWED_ORIGINS=http://frontend-app:5002,http://client-db:5001,http://localhost:5002
+      - FRONTEND_URL=frontend-app
+      - FRONTEND_PORT=5002
+      - CLIENT_DB_URL=client-db
+      - CLIENT_DB_PORT=5001
+
+  frontend-app:
+    build:
+      context: ./services/frontend_js/
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    depends_on:
+      backend-app:
+        condition: service_started
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend-app:8082
+      - BACKEND_URL=http://backend-app:8082
+      - BACKEND_PORT=8082
+      - FRONTEND_PORT=5002
+      - APP_STAGE=dev
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

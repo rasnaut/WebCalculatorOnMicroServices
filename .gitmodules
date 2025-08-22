@@ -1,0 +1,9 @@
+[submodule "services/frontend_js"]
+	path = services/frontend_js
+	url = git@github.com:rasnaut/CalculaorJSFrontend.git
+[submodule "services/client_db_python"]
+	path = services/client_db_python
+	url = git@github.com:rasnaut/CalculatorPythonPostgersClient.git
+[submodule "services/backend_java"]
+	path = services/backend_java
+	url = git@github.com:rasnaut/CalculatorJavaBackend.git
