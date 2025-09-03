@@ -23,11 +23,11 @@ services:
       context: ./services/client_db_python/
       dockerfile: Dockerfile
     environment:
-      - DB_HOST=postgres_db
-      - DB_PORT=5432
-      - DB_NAME=${POSTGRES_DB}
-      - DB_USER=${POSTGRES_USER}
-      - DB_PASS=${POSTGRES_PASSWORD}
+      DB_HOST: postgres_db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
     expose:
       - "5001"
     depends_on:
@@ -47,12 +47,11 @@ services:
       client-db:
         condition: service_started
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - ALLOWED_ORIGINS=http://frontend-app:5002,http://client-db:5001,http://localhost:5002
-      - FRONTEND_URL=frontend-app
-      - FRONTEND_PORT=5002
-      - CLIENT_DB_URL=client-db
-      - CLIENT_DB_PORT=5001
+      SPRING_PROFILES_ACTIVE: prod
+      FRONTEND_URL: frontend-app
+      FRONTEND_PORT: 5002
+      CLIENT_DB_URL: client-db
+      CLIENT_DB_PORT: 5001
 
   frontend-app:
     build:
@@ -64,11 +63,10 @@ services:
       backend-app:
         condition: service_started
     environment:
-      - REACT_APP_BACKEND_URL=http://backend-app:8082
-      - BACKEND_URL=http://backend-app:8082
-      - BACKEND_PORT=8082
-      - FRONTEND_PORT=5002
-      - APP_STAGE=dev
+      BACKEND_URL: http://backend-app:8080
+      BACKEND_PORT: 8080
+      FRONTEND_PORT: 5002
+      APP_STAGE: dev
     restart: unless-stopped
 
 volumes:
